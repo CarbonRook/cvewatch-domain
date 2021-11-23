@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Indicator struct {
@@ -74,7 +76,6 @@ func NewIndicatorFactory(ifc IndicatorFactoryConfig) (*IndicatorFactory, error) 
 }
 
 func (f IndicatorFactory) NewIndicator(
-	id string,
 	title string,
 	score int,
 	createdDate time.Time,
@@ -84,7 +85,7 @@ func (f IndicatorFactory) NewIndicator(
 	sourceId string,
 	references []string) Indicator {
 	return Indicator{
-		ID:           id,
+		ID:           uuid.New().String(),
 		Title:        title,
 		Score:        score,
 		CreatedDate:  createdDate,
