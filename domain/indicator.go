@@ -96,7 +96,6 @@ func (f IndicatorFactory) NewIndicator(
 	createdDate time.Time,
 	accessedDate time.Time,
 	link string,
-	source string,
 	sourceId string,
 	references []string) Indicator {
 	return Indicator{
@@ -106,7 +105,7 @@ func (f IndicatorFactory) NewIndicator(
 		CreatedDate:  createdDate,
 		AccessedDate: accessedDate,
 		Link:         link,
-		Source:       source,
+		Source:       f.factoryConfig.Source,
 		SourceId:     sourceId,
 		References:   references,
 		TriggeredOn:  []TriggerMatchCollection{},

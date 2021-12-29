@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 		log.Panicf("cannot create test trigger")
 	}
 
-	indicatorFactory, err := NewIndicatorFactory(IndicatorFactoryConfig{})
+	indicatorFactory, err := NewIndicatorFactory(IndicatorFactoryConfig{Source: "reddit"})
 	if err != nil {
 		log.Fatalf("failed to create indicator factory: %s", err)
 	}
@@ -37,7 +37,6 @@ func TestMain(m *testing.M) {
 		createdDate,
 		accessedDate,
 		"https://reddit.com/r/sysadmin/comments/rfoz5d/logpresso_cve202144228scanner_log4j_vulnerability/",
-		"Reddit",
 		"t3_rfoz5d",
 		[]string{
 			"https://www.reddit.com/r/sysadmin/comments/rfoz5d/logpresso_cve202144228scanner_log4j_vulnerability/",
