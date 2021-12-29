@@ -43,13 +43,10 @@ func TestMain(m *testing.M) {
 			"https://www.reddit.com/r/sysadmin/comments/rfoz5d/logpresso_cve202144228scanner_log4j_vulnerability/",
 			"https://github.com/logpresso/CVE-2021-44228-Scanner/releases/download/v1.2.3/logpresso-log4j2-scan-1.2.3.jar",
 			"https://github.com/logpresso/CVE-2021-44228-Scanner/releases/download/v1.2.3/logpresso-log4j2-scan-1.2.3.jar",
-		},
-		triggerMatchCollection,
-		[]string{
-			"cve-2021-44228",
-			"scanner",
-			"log4j",
 		})
+
+	testIndicator.AddTriggerMatchCollection(triggerMatchCollection)
+	testIndicator.Tags = []string{"cve-2021-44228", "scanner", "log4j"}
 
 	exitVal := m.Run()
 	os.Exit(exitVal)

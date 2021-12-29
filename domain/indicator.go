@@ -9,21 +9,33 @@ import (
 )
 
 type Indicator struct {
-	ID           string                 `json:"id"`
-	Title        string                 `json:"title"`
-	Score        int                    `json:"score"`
-	CreatedDate  time.Time              `json:"createdDate"`
-	AccessedDate time.Time              `json:"accessedDate"`
-	Link         string                 `json:"link"`
-	Source       string                 `json:"source"`
-	SourceId     string                 `json:"sourceId"`
-	References   []string               `json:"references"`
-	TriggeredOn  TriggerMatchCollection `json:"triggeredOn"`
-	Tags         []string               `json:"tags"`
+	ID           string                   `json:"id"`
+	Title        string                   `json:"title"`
+	Score        int                      `json:"score"`
+	CreatedDate  time.Time                `json:"createdDate"`
+	AccessedDate time.Time                `json:"accessedDate"`
+	Link         string                   `json:"link"`
+	Source       string                   `json:"source"`
+	SourceId     string                   `json:"sourceId"`
+	References   []string                 `json:"references"`
+	TriggeredOn  []TriggerMatchCollection `json:"triggeredOn,omitempty"`
+	Tags         []string                 `json:"tags,omitempty"`
 }
 
 func (indicator *Indicator) String() string {
 	return fmt.Sprintf("[%s] %s %s (%d)", indicator.CreatedDate.UTC().Format(time.RFC3339), indicator.ID, indicator.Title, indicator.Score)
+}
+
+func (indicator *Indicator) AddTriggerMatchCollection(trigger TriggerMatchCollection) {
+	indicator.TriggeredOn = append(indicator.TriggeredOn, trigger)
+}
+
+func (indicator *Indicator) AddTag(tag string) {
+	indicator.Tags = append(indicator.Tags, tag)
+}
+
+func (indicator *Indicator) AddReference(reference string) {
+	indicator.References = append(indicator.References, reference)
 }
 
 type IndicatorCollection struct {
@@ -71,6 +83,7 @@ func (f IndicatorFactory) IsZero() bool {
 }
 
 type IndicatorFactoryConfig struct {
+	Source string
 }
 
 func NewIndicatorFactory(ifc IndicatorFactoryConfig) (*IndicatorFactory, error) {
@@ -85,9 +98,7 @@ func (f IndicatorFactory) NewIndicator(
 	link string,
 	source string,
 	sourceId string,
-	references []string,
-	triggeredOn TriggerMatchCollection,
-	tags []string) Indicator {
+	references []string) Indicator {
 	return Indicator{
 		ID:           uuid.New().String(),
 		Title:        title,
@@ -98,8 +109,8 @@ func (f IndicatorFactory) NewIndicator(
 		Source:       source,
 		SourceId:     sourceId,
 		References:   references,
-		TriggeredOn:  triggeredOn,
-		Tags:         tags,
+		TriggeredOn:  []TriggerMatchCollection{},
+		Tags:         []string{},
 	}
 }
 
