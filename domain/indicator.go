@@ -9,15 +9,17 @@ import (
 )
 
 type Indicator struct {
-	ID           string
-	Title        string
-	Score        int
-	CreatedDate  time.Time
-	AccessedDate time.Time
-	Link         string
-	Source       string
-	SourceId     string
-	References   []string
+	ID           string                 `json:"id"`
+	Title        string                 `json:"title"`
+	Score        int                    `json:"score"`
+	CreatedDate  time.Time              `json:"createdDate"`
+	AccessedDate time.Time              `json:"accessedDate"`
+	Link         string                 `json:"link"`
+	Source       string                 `json:"source"`
+	SourceId     string                 `json:"sourceId"`
+	References   []string               `json:"references"`
+	TriggeredOn  TriggerMatchCollection `json:"triggeredOn"`
+	Tags         []string               `json:"tags"`
 }
 
 func (indicator *Indicator) String() string {
@@ -83,7 +85,9 @@ func (f IndicatorFactory) NewIndicator(
 	link string,
 	source string,
 	sourceId string,
-	references []string) Indicator {
+	references []string,
+	triggeredOn TriggerMatchCollection,
+	tags []string) Indicator {
 	return Indicator{
 		ID:           uuid.New().String(),
 		Title:        title,
@@ -94,18 +98,18 @@ func (f IndicatorFactory) NewIndicator(
 		Source:       source,
 		SourceId:     sourceId,
 		References:   references,
+		TriggeredOn:  triggeredOn,
+		Tags:         tags,
 	}
 }
 
-func (f IndicatorFactory) UnmarshalIndicatorFromDatabase(id string, title string, score int, created string, accessed string, link string, source string, sourceId string, references []string) (*Indicator, error) {
+func (f IndicatorFactory) UnmarshalIndicatorFromDatabase(id string, title string, score int, created string, accessed string, link string, source string, sourceId string, references []string, tags []string) (*Indicator, error) {
 	createdDate, err := time.Parse("2006-01-02 15:04:05.000", created)
-
 	if err != nil {
 		return nil, err
 	}
 
 	accessedDate, err := time.Parse("2006-01-02 15:04:05.000", accessed)
-
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +124,7 @@ func (f IndicatorFactory) UnmarshalIndicatorFromDatabase(id string, title string
 		Source:       source,
 		SourceId:     sourceId,
 		References:   references,
+		Tags:         tags,
 	}, nil
 }
 
@@ -132,12 +137,10 @@ func (f IndicatorFactory) NewIndicatorCollection() IndicatorCollection {
 type IndicatorRepository interface {
 	Store(ctx context.Context, indicator Indicator) error
 	GetById(ctx context.Context, id string) (Indicator, error)
-	GetByCve(ctx context.Context, cveId string) (*IndicatorCollection, error)
+	GetByTriggerName(ctx context.Context, triggerName string) (*IndicatorCollection, error)
+	GetByMatch(ctx context.Context, match string) (*IndicatorCollection, error)
 	GetBySource(ctx context.Context, source string) (*IndicatorCollection, error)
 	GetBySourceId(ctx context.Context, sourceId string) (Indicator, error)
 	GetLatest(ctx context.Context) (Indicator, error)
 	GetBetween(ctx context.Context, start time.Time, end time.Time) (*IndicatorCollection, error)
-}
-
-type IndicatorService interface {
 }
