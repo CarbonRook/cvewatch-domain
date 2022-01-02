@@ -38,6 +38,28 @@ func (indicator *Indicator) AddReference(reference string) {
 	indicator.References = append(indicator.References, reference)
 }
 
+func (indicator *Indicator) Map() map[string]interface{} {
+
+	triggeredOn := make(map[string][]string)
+	for _, trigger := range indicator.TriggeredOn {
+		triggeredOn[trigger.TriggerName] = trigger.Matches
+	}
+
+	outMap := make(map[string]interface{})
+	outMap["ID"] = indicator.ID
+	outMap["Title"] = indicator.Title
+	outMap["Score"] = indicator.Score
+	outMap["CreatedDate"] = indicator.CreatedDate.Format(time.RFC3339)
+	outMap["AccessedDate"] = indicator.AccessedDate.Format(time.RFC3339)
+	outMap["Link"] = indicator.Link
+	outMap["Source"] = indicator.Source
+	outMap["SourceId"] = indicator.SourceId
+	outMap["References"] = indicator.References
+	outMap["TriggeredOn"] = triggeredOn
+	outMap["Tags"] = indicator.Tags
+	return outMap
+}
+
 type IndicatorCollection struct {
 	Indicators []Indicator
 }
