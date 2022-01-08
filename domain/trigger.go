@@ -34,8 +34,15 @@ func MustNewTrigger(name string, regex string) Trigger {
 }
 
 type TriggerMatchCollection struct {
-	TriggerName string   `json:"triggerName"`
-	Matches     []string `json:"matches"`
+	TriggerName string   `json:"triggerName" db:"triggerName"`
+	Matches     []string `json:"matches" db:"matches"`
+}
+
+func (tmc TriggerMatchCollection) Map() map[string]interface{} {
+	outMap := make(map[string]interface{})
+	outMap["TriggerName"] = tmc.TriggerName
+	outMap["Matches"] = tmc.Matches
+	return outMap
 }
 
 func NewTriggerMatchCollection(triggerName string, matches [][]byte) (TriggerMatchCollection, error) {

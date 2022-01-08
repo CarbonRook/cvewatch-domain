@@ -69,33 +69,3 @@ func TestUnmarshallIndicatorFromJson(t *testing.T) {
 
 	log.Printf("successfully unmarshalled")
 }
-
-func TestUnmarshalIndicatorFromDatabase(t *testing.T) {
-	factory, err := NewIndicatorFactory(IndicatorFactoryConfig{})
-	if err != nil {
-		t.Errorf("failed to initialise IndicatorFactory")
-	}
-
-	indicator, err := factory.UnmarshalIndicatorFromDatabase(
-		"1",
-		"Test post",
-		1484,
-		"2021-10-02 21:32:59.100",
-		"2021-10-02 21:33:05.100",
-		"https://reddit.com/r/netsec/testing",
-		"Reddit",
-		"qwfy433",
-		[]string{
-			"https://reddit.com/r/netsec/reference",
-		},
-		[]string{
-			"netsec", "cve-9999-1234",
-		},
-	)
-
-	if err != nil {
-		t.Errorf("failed to unmarshal indicator from DB")
-	}
-
-	t.Logf("indicator:\n%s", indicator.String())
-}

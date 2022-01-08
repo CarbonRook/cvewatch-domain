@@ -9,21 +9,21 @@ import (
 )
 
 type Indicator struct {
-	ID           string                   `json:"id"`
-	Title        string                   `json:"title"`
-	Score        int                      `json:"score"`
-	CreatedDate  time.Time                `json:"createdDate"`
-	AccessedDate time.Time                `json:"accessedDate"`
-	Link         string                   `json:"link"`
-	Source       string                   `json:"source"`
-	SourceId     string                   `json:"sourceId"`
-	References   []string                 `json:"references"`
-	TriggeredOn  []TriggerMatchCollection `json:"triggeredOn,omitempty"`
-	Tags         []string                 `json:"tags,omitempty"`
+	Id           string                   `json:"id" db:"id"`
+	Title        string                   `json:"title" db:"title"`
+	Score        int                      `json:"score" db:"score"`
+	CreatedDate  time.Time                `json:"createdDate" db:"createdDate"`
+	AccessedDate time.Time                `json:"accessedDate" db:"accessedDate"`
+	Link         string                   `json:"link" db:"link"`
+	Source       string                   `json:"source" db:"source"`
+	SourceId     string                   `json:"sourceId" db:"sourceId"`
+	References   []string                 `json:"references" db:"references"`
+	TriggeredOn  []TriggerMatchCollection `json:"triggeredOn,omitempty" db:"triggeredOn"`
+	Tags         []string                 `json:"tags,omitempty" db:"tags"`
 }
 
 func (indicator *Indicator) String() string {
-	return fmt.Sprintf("[%s] %s %s (%d)", indicator.CreatedDate.UTC().Format(time.RFC3339), indicator.ID, indicator.Title, indicator.Score)
+	return fmt.Sprintf("[%s] %s %s (%d)", indicator.CreatedDate.UTC().Format(time.RFC3339), indicator.Id, indicator.Title, indicator.Score)
 }
 
 func (indicator *Indicator) AddTriggerMatchCollection(trigger TriggerMatchCollection) {
@@ -46,17 +46,17 @@ func (indicator *Indicator) Map() map[string]interface{} {
 	}
 
 	outMap := make(map[string]interface{})
-	outMap["ID"] = indicator.ID
-	outMap["Title"] = indicator.Title
-	outMap["Score"] = indicator.Score
-	outMap["CreatedDate"] = indicator.CreatedDate.Format(time.RFC3339)
-	outMap["AccessedDate"] = indicator.AccessedDate.Format(time.RFC3339)
-	outMap["Link"] = indicator.Link
-	outMap["Source"] = indicator.Source
-	outMap["SourceId"] = indicator.SourceId
-	outMap["References"] = indicator.References
-	outMap["TriggeredOn"] = triggeredOn
-	outMap["Tags"] = indicator.Tags
+	outMap["id"] = indicator.Id
+	outMap["title"] = indicator.Title
+	outMap["score"] = indicator.Score
+	outMap["created_date"] = indicator.CreatedDate.Format(time.RFC3339)
+	outMap["accessed_date"] = indicator.AccessedDate.Format(time.RFC3339)
+	outMap["link"] = indicator.Link
+	outMap["source"] = indicator.Source
+	outMap["source_id"] = indicator.SourceId
+	outMap["references"] = indicator.References
+	outMap["triggered_on"] = triggeredOn
+	outMap["tags"] = indicator.Tags
 	return outMap
 }
 
@@ -88,8 +88,22 @@ func (icollection *IndicatorCollection) Extend(inCollection *IndicatorCollection
 	icollection.Indicators = append(icollection.Indicators, inCollection.Indicators...)
 }
 
-func (icollection *IndicatorCollection) Last() Indicator {
-	return icollection.Indicators[len(icollection.Indicators)-1]
+func (icollection *IndicatorCollection) IsEmpty() bool {
+	return len(icollection.Indicators) == 0
+}
+
+func (icollection *IndicatorCollection) First() (Indicator, error) {
+	if icollection.IsEmpty() {
+		return Indicator{}, fmt.Errorf("indicator collection empty")
+	}
+	return icollection.Indicators[0], nil
+}
+
+func (icollection *IndicatorCollection) Last() (Indicator, error) {
+	if icollection.IsEmpty() {
+		return Indicator{}, fmt.Errorf("indicator collection empty")
+	}
+	return icollection.Indicators[len(icollection.Indicators)-1], nil
 }
 
 type IndicatorFactory struct {
@@ -121,7 +135,7 @@ func (f IndicatorFactory) NewIndicator(
 	sourceId string,
 	references []string) Indicator {
 	return Indicator{
-		ID:           uuid.New().String(),
+		Id:           uuid.New().String(),
 		Title:        title,
 		Score:        score,
 		CreatedDate:  createdDate,
@@ -135,35 +149,45 @@ func (f IndicatorFactory) NewIndicator(
 	}
 }
 
-func (f IndicatorFactory) UnmarshalIndicatorFromDatabase(id string, title string, score int, created string, accessed string, link string, source string, sourceId string, references []string, tags []string) (*Indicator, error) {
-	createdDate, err := time.Parse("2006-01-02 15:04:05.000", created)
+func (f IndicatorFactory) UnmarshallFromMap(indicatorMap map[string]interface{}) (*Indicator, error) {
+	parsedIndicator := Indicator{}
+	parsedIndicator.Id = indicatorMap["id"].(string)
+	parsedIndicator.Title = indicatorMap["title"].(string)
+	parsedIndicator.Score = indicatorMap["score"].(int)
+	parsedIndicator.Link = indicatorMap["link"].(string)
+	parsedIndicator.Source = indicatorMap["source"].(string)
+	parsedIndicator.SourceId = indicatorMap["source_id"].(string)
+	parsedIndicator.References = indicatorMap["references"].([]string)
+	parsedIndicator.TriggeredOn = indicatorMap["triggered_on"].([]TriggerMatchCollection)
+	parsedIndicator.Tags = indicatorMap["tags"].([]string)
+
+	createdDate, err := time.Parse("2006-01-02 15:04:05.000", indicatorMap["created_date"].(string))
 	if err != nil {
 		return nil, err
 	}
+	parsedIndicator.CreatedDate = createdDate
 
-	accessedDate, err := time.Parse("2006-01-02 15:04:05.000", accessed)
+	accessedDate, err := time.Parse("2006-01-02 15:04:05.000", indicatorMap["accessed_date"].(string))
 	if err != nil {
 		return nil, err
 	}
+	parsedIndicator.AccessedDate = accessedDate
 
-	return &Indicator{
-		ID:           id,
-		Title:        title,
-		Score:        score,
-		CreatedDate:  createdDate,
-		AccessedDate: accessedDate,
-		Link:         link,
-		Source:       source,
-		SourceId:     sourceId,
-		References:   references,
-		Tags:         tags,
+	return &parsedIndicator, nil
+}
+
+func (f IndicatorFactory) NewIndicatorCollection() (IndicatorCollection, error) {
+	return IndicatorCollection{
+		Indicators: []Indicator{},
 	}, nil
 }
 
-func (f IndicatorFactory) NewIndicatorCollection() IndicatorCollection {
-	return IndicatorCollection{
-		Indicators: []Indicator{},
+func (f IndicatorFactory) MustNewIndicatorCollection() IndicatorCollection {
+	collection, err := f.NewIndicatorCollection()
+	if err != nil {
+		panic(err)
 	}
+	return collection
 }
 
 type IndicatorRepository interface {
