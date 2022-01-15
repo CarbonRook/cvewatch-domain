@@ -110,6 +110,8 @@ func (icollection *IndicatorCollection) Last() (Indicator, error) {
 }
 
 type IndicatorFactory interface {
+	Config() IndicatorFactoryConfig
+	SetConfig(IndicatorFactoryConfig) error
 	NewIndicator() (Indicator, error)
 	MustNewIndicator() Indicator
 	UnmarshallFromMap(indicatorMap map[string]interface{}) (*Indicator, error)
@@ -129,8 +131,13 @@ func (f DefaultIndicatorFactory) Config() IndicatorFactoryConfig {
 	return f.factoryConfig
 }
 
+func (f *DefaultIndicatorFactory) SetConfig(config IndicatorFactoryConfig) error {
+	f.factoryConfig = config
+	return nil
+}
+
 func (f DefaultIndicatorFactory) IsZero() bool {
-	return f == DefaultIndicatorFactory{}
+	return f == (DefaultIndicatorFactory{})
 }
 
 func (f DefaultIndicatorFactory) NewIndicator() (Indicator, error) {
@@ -193,7 +200,7 @@ func (f DefaultIndicatorFactory) MustNewIndicatorCollection() IndicatorCollectio
 }
 
 func NewIndicatorFactory(ifc IndicatorFactoryConfig) (IndicatorFactory, error) {
-	return DefaultIndicatorFactory{factoryConfig: ifc}, nil
+	return &DefaultIndicatorFactory{factoryConfig: ifc}, nil
 }
 
 type IndicatorRepository interface {
