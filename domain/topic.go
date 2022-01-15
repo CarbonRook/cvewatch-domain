@@ -55,7 +55,7 @@ func NewRegexTopic(name string, regex string) (Topic, error) {
 	return trigger, nil
 }
 
-func MustNewTopic(name string, regex string) Topic {
+func MustNewRegexTopic(name string, regex string) Topic {
 	trigger, err := NewRegexTopic(name, regex)
 	if err != nil {
 		panic(err)
