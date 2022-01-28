@@ -1,8 +1,14 @@
 package domain
 
+import "strings"
+
 type Mention struct {
 	TopicName string `json:"topicName" db:"topicName"`
 	Mention   string `json:"mention" db:"mention"`
+}
+
+func (m Mention) Equal(mention Mention) bool {
+	return strings.EqualFold(m.TopicName, mention.TopicName) && strings.EqualFold(m.Mention, mention.Mention)
 }
 
 func (tmc Mention) Map() map[string]string {
