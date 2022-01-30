@@ -12,7 +12,7 @@ type Indicator struct {
 	Id           string    `json:"id" db:"id"`
 	Title        string    `json:"title" db:"title"`
 	Body         string    `json:"body" db:"body"`
-	Score        int       `json:"score" db:"score"`
+	Score        int64     `json:"score" db:"score"`
 	CreatedDate  time.Time `json:"createdDate" db:"createdDate"`
 	AccessedDate time.Time `json:"accessedDate" db:"accessedDate"`
 	Link         string    `json:"link" db:"link"`
@@ -69,7 +69,7 @@ type IndicatorCollection struct {
 	Indicators []Indicator
 }
 
-func (icollection *IndicatorCollection) CumulativeScore() (cumulativeScore int) {
+func (icollection *IndicatorCollection) CumulativeScore() (cumulativeScore int64) {
 	cumulativeScore = 0
 	for _, indicator := range icollection.Indicators {
 		cumulativeScore += indicator.Score
@@ -165,7 +165,7 @@ func (f DefaultIndicatorFactory) UnmarshallFromMap(indicatorMap map[string]inter
 	parsedIndicator.Id = indicatorMap["id"].(string)
 	parsedIndicator.Title = indicatorMap["title"].(string)
 	parsedIndicator.Body = indicatorMap["body"].(string)
-	parsedIndicator.Score = indicatorMap["score"].(int)
+	parsedIndicator.Score = indicatorMap["score"].(int64)
 	parsedIndicator.Link = indicatorMap["link"].(string)
 	parsedIndicator.Source = indicatorMap["source"].(string)
 	parsedIndicator.SourceId = indicatorMap["source_id"].(string)
