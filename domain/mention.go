@@ -13,7 +13,7 @@ func (m Mention) Equal(mention Mention) bool {
 
 func (tmc Mention) Map() map[string]string {
 	outMap := make(map[string]string)
-	outMap["topicName"] = tmc.TopicName
+	outMap["topic_name"] = tmc.TopicName
 	outMap["mention"] = tmc.Mention
 	return outMap
 }

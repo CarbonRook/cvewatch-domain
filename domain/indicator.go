@@ -54,11 +54,11 @@ func (indicator *Indicator) Map() map[string]interface{} {
 	outMap["title"] = indicator.Title
 	outMap["body"] = indicator.Body
 	outMap["score"] = indicator.Score
-	outMap["created_date"] = indicator.CreatedDate.Format(time.RFC3339)
-	outMap["accessed_date"] = indicator.AccessedDate.Format(time.RFC3339)
+	outMap["createdDate"] = indicator.CreatedDate.Format(time.RFC3339)
+	outMap["accessedDate"] = indicator.AccessedDate.Format(time.RFC3339)
 	outMap["link"] = indicator.Link
 	outMap["source"] = indicator.Source
-	outMap["source_id"] = indicator.SourceId
+	outMap["sourceId"] = indicator.SourceId
 	outMap["references"] = indicator.References
 	outMap["mentions"] = mentions
 	outMap["tags"] = indicator.Tags
@@ -169,18 +169,18 @@ func (f DefaultIndicatorFactory) UnmarshallFromMap(indicatorMap map[string]inter
 	parsedIndicator.Score = int64(scoreFloat)
 	parsedIndicator.Link = indicatorMap["link"].(string)
 	parsedIndicator.Source = indicatorMap["source"].(string)
-	parsedIndicator.SourceId = indicatorMap["source_id"].(string)
+	parsedIndicator.SourceId = indicatorMap["sourceId"].(string)
 	parsedIndicator.References = indicatorMap["references"].([]string)
 	parsedIndicator.Mentions = indicatorMap["mentions"].([]Mention)
 	parsedIndicator.Tags = indicatorMap["tags"].([]string)
 
-	createdDate, err := time.Parse("2006-01-02 15:04:05.000", indicatorMap["created_date"].(string))
+	createdDate, err := time.Parse("2006-01-02 15:04:05.000", indicatorMap["createdDate"].(string))
 	if err != nil {
 		return nil, err
 	}
 	parsedIndicator.CreatedDate = createdDate
 
-	accessedDate, err := time.Parse("2006-01-02 15:04:05.000", indicatorMap["accessed_date"].(string))
+	accessedDate, err := time.Parse("2006-01-02 15:04:05.000", indicatorMap["accessedDate"].(string))
 	if err != nil {
 		return nil, err
 	}
