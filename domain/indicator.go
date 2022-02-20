@@ -28,6 +28,11 @@ func (indicator *Indicator) String() string {
 }
 
 func (indicator *Indicator) AddMention(mention Mention) {
+	for _, existingMention := range indicator.Mentions {
+		if existingMention.Equal(mention) {
+			return
+		}
+	}
 	indicator.Mentions = append(indicator.Mentions, mention)
 }
 
