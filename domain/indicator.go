@@ -27,15 +27,25 @@ func (indicator *Indicator) String() string {
 	return fmt.Sprintf("[%s] %s %s (%d)", indicator.CreatedDate.UTC().Format(time.RFC3339), indicator.Id, indicator.Title, indicator.Score)
 }
 
-func (indicator *Indicator) AddTriggerMatchCollection(trigger Mention) {
-	indicator.Mentions = append(indicator.Mentions, trigger)
+func (indicator *Indicator) AddMention(mention Mention) {
+	indicator.Mentions = append(indicator.Mentions, mention)
 }
 
 func (indicator *Indicator) AddTag(tag string) {
+	for _, existingTag := range indicator.Tags {
+		if tag == existingTag {
+			return
+		}
+	}
 	indicator.Tags = append(indicator.Tags, tag)
 }
 
 func (indicator *Indicator) AddReference(reference string) {
+	for _, existingReference := range indicator.References {
+		if reference == existingReference {
+			return
+		}
+	}
 	indicator.References = append(indicator.References, reference)
 }
 
