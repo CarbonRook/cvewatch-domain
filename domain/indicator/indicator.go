@@ -1,11 +1,8 @@
-package domain
+package indicator
 
 import (
-	"context"
 	"fmt"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Indicator struct {
@@ -126,109 +123,16 @@ func (icollection *IndicatorCollection) Last() (Indicator, error) {
 	return icollection.Indicators[len(icollection.Indicators)-1], nil
 }
 
-type IndicatorFactory interface {
-	Config() IndicatorFactoryConfig
-	SetConfig(IndicatorFactoryConfig) error
-	NewIndicator() (Indicator, error)
-	MustNewIndicator() Indicator
-	UnmarshallFromMap(indicatorMap map[string]interface{}) (*Indicator, error)
-	NewIndicatorCollection() (IndicatorCollection, error)
-	MustNewIndicatorCollection() IndicatorCollection
-}
-
-type IndicatorFactoryConfig struct {
-	Source string
-}
-
-type DefaultIndicatorFactory struct {
-	factoryConfig IndicatorFactoryConfig
-}
-
-func (f DefaultIndicatorFactory) Config() IndicatorFactoryConfig {
-	return f.factoryConfig
-}
-
-func (f *DefaultIndicatorFactory) SetConfig(config IndicatorFactoryConfig) error {
-	f.factoryConfig = config
-	return nil
-}
-
-func (f DefaultIndicatorFactory) IsZero() bool {
-	return f == (DefaultIndicatorFactory{})
-}
-
-func (f DefaultIndicatorFactory) NewIndicator() (Indicator, error) {
-	return Indicator{
-		Id:         uuid.New().String(),
-		Source:     f.factoryConfig.Source,
-		References: []string{},
-		Mentions:   []Mention{},
-		Tags:       []string{},
-	}, nil
-}
-
-func (f DefaultIndicatorFactory) MustNewIndicator() Indicator {
-	indicator, err := f.NewIndicator()
-	if err != nil {
-		panic(err)
-	}
-	return indicator
-}
-
-func (f DefaultIndicatorFactory) UnmarshallFromMap(indicatorMap map[string]interface{}) (*Indicator, error) {
-	parsedIndicator := Indicator{}
-	parsedIndicator.Id = indicatorMap["id"].(string)
-	parsedIndicator.Title = indicatorMap["title"].(string)
-	parsedIndicator.Body = indicatorMap["body"].(string)
-	scoreFloat := indicatorMap["score"].(float64)
-	parsedIndicator.Score = int64(scoreFloat)
-	parsedIndicator.Link = indicatorMap["link"].(string)
-	parsedIndicator.Source = indicatorMap["source"].(string)
-	parsedIndicator.SourceId = indicatorMap["sourceId"].(string)
-	parsedIndicator.References = indicatorMap["references"].([]string)
-	parsedIndicator.Mentions = indicatorMap["mentions"].([]Mention)
-	parsedIndicator.Tags = indicatorMap["tags"].([]string)
-
-	createdDate, err := time.Parse("2006-01-02 15:04:05.000", indicatorMap["createdDate"].(string))
-	if err != nil {
-		return nil, err
-	}
-	parsedIndicator.CreatedDate = createdDate
-
-	accessedDate, err := time.Parse("2006-01-02 15:04:05.000", indicatorMap["accessedDate"].(string))
-	if err != nil {
-		return nil, err
-	}
-	parsedIndicator.AccessedDate = accessedDate
-
-	return &parsedIndicator, nil
-}
-
-func (f DefaultIndicatorFactory) NewIndicatorCollection() (IndicatorCollection, error) {
+func (f IndicatorFactory) NewIndicatorCollection() (IndicatorCollection, error) {
 	return IndicatorCollection{
 		Indicators: []Indicator{},
 	}, nil
 }
 
-func (f DefaultIndicatorFactory) MustNewIndicatorCollection() IndicatorCollection {
+func (f IndicatorFactory) MustNewIndicatorCollection() IndicatorCollection {
 	collection, err := f.NewIndicatorCollection()
 	if err != nil {
 		panic(err)
 	}
 	return collection
-}
-
-func NewIndicatorFactory(ifc IndicatorFactoryConfig) (IndicatorFactory, error) {
-	return &DefaultIndicatorFactory{factoryConfig: ifc}, nil
-}
-
-type IndicatorRepository interface {
-	Store(ctx context.Context, indicator Indicator) error
-	GetById(ctx context.Context, id string) (Indicator, error)
-	GetByTriggerName(ctx context.Context, triggerName string) (*IndicatorCollection, error)
-	GetByMatch(ctx context.Context, match string) (*IndicatorCollection, error)
-	GetBySource(ctx context.Context, source string) (*IndicatorCollection, error)
-	GetBySourceId(ctx context.Context, sourceId string) (Indicator, error)
-	GetLatest(ctx context.Context) (Indicator, error)
-	GetBetween(ctx context.Context, start time.Time, end time.Time) (*IndicatorCollection, error)
 }

@@ -1,4 +1,4 @@
-package domain
+package indicator
 
 import (
 	"encoding/json"
@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 		log.Panicf("cannot create test trigger")
 	}
 
-	indicatorFactory, err := NewIndicatorFactory(IndicatorFactoryConfig{Source: "reddit"})
+	indicatorFactory, err := NewIndicatorFactory("reddit")
 	if err != nil {
 		log.Fatalf("failed to create indicator factory: %s", err)
 	}
